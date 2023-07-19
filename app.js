@@ -1,13 +1,13 @@
 const express = require("express");
+const fs = require("fs");
 const app = express();
 const port = 3000;
-app.get("/", (req, res) => {
+const tours = fs.readFileSync(`${__dirname}/dev-data/tours_simple.json`);
+app.get("/api/tours", (req, res) => {
   const obj = { message: "hello world!" };
   res.status(200).json(obj);
 });
-app.get("/mame", (req, res) => {
-  res.status(200).send("no mame for you");
-});
+
 app.post("/", (req, res) => {
   res.json({ message: "hi" });
 });
