@@ -6,7 +6,7 @@ app.use(express.json());
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours_simple.json`)
 );
-app.get("/api/v1/tours", (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: "success",
     results: tours.length,
@@ -14,19 +14,25 @@ app.get("/api/v1/tours", (req, res) => {
       tours,
     },
   });
-});
-app.get("/api/v1/tours/:id", (req, res) => {
-  const { id } = req.params;
-  const tour = tours.find((tour) => tour.id === Number(id));
+};
+const getTour = (req, res) => {
+  const id = req.params.id * 1;
+  if (id > tours.length) {
+    res.status(404).json({
+      status: "failed",
+      message: "Inavlid ID",
+    });
+    return;
+  }
+  const tour = tours.find((tour) => tour.id === id);
   res.status(200).json({
     status: "success",
     data: {
       tour,
     },
   });
-});
-
-app.post("/api/v1/tours", (req, res) => {
+};
+const createTour = (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
   const newTour = {
     ...req.body,
@@ -46,7 +52,41 @@ app.post("/api/v1/tours", (req, res) => {
       newTour,
     },
   });
-});
+};
+const updateTour = (req, res) => {
+  const id = req.params.id * 1;
+  if (id > tours.length) {
+    res.status(404).json({
+      status: "failed",
+      message: "Inavlid ID",
+    });
+    return;
+  }
+  res.json({
+    status: "success",
+
+    updatedProperties: req.body,
+  });
+};
+const deleteTour = (req, res) => {
+  const id = req.params.id * 1;
+  if (id > tours.length) {
+    res.status(404).json({
+      status: "failed",
+      message: "Inavlid ID",
+    });
+    return;
+  }
+  res.status(204).json({
+    status: "success",
+    message: "Deleted Tour successfuly !",
+  });
+};
+app.get("/api/v1/tours", getAllTours);
+app.get("/api/v1/tours/:id", getTour);
+app.post("/api/v1/tours", createTour);
+app.patch("/api/v1/tours/:id", updateTour);
+app.delete("/api/v1/tours/:id", deleteTour);
 app.listen(port, () => {
   console.log("app is running on port 3000");
 });
