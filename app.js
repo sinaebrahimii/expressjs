@@ -1,11 +1,15 @@
 const express = require("express");
 const fs = require("fs");
+const morgan = require("morgan");
 const app = express();
 const port = 3000;
+// MIDDLEWEARS
+app.use(morgan("dev"));
 app.use(express.json());
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours_simple.json`)
 );
+//ROUTE HANDLERS
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: "success",
