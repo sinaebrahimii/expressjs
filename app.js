@@ -4,7 +4,9 @@ const toursRoute = require("./routes/tourRoutes");
 const usersRoute = require("./routes/userRoutes");
 const app = express();
 // MIDDLEWEARS
-app.use(morgan("dev"));
+if (process.env.NODE_ENV === "devel0pement") {
+  app.use(morgan("dev"));
+}
 app.use(express.json());
 
 //ROUTES
