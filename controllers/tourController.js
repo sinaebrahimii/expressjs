@@ -3,6 +3,26 @@ const path = require("path");
 const filePath = path.join(__dirname, "/../dev-data/data/tours_simple.json");
 const tours = JSON.parse(fs.readFileSync(filePath));
 `${__dirname}/dev-data/data/tours_simple.json`;
+exports.checkID = (req, res, next, value) => {
+  console.log(`ID:${value}`);
+  const id = req.params.id * 1;
+  if (id > tours.length) {
+    res.status(404).json({
+      status: "failed",
+      message: "Inavlid ID -_-",
+    });
+    return;
+  }
+  next();
+};
+exports.checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price || req.body.name.trim().length === 0) {
+    return res
+      .status(400)
+      .json({ status: "failed", message: "Missing Name or Price" });
+  }
+  next();
+};
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: "success",
@@ -14,13 +34,6 @@ exports.getAllTours = (req, res) => {
 };
 exports.getTour = (req, res) => {
   const id = req.params.id * 1;
-  if (id > tours.length) {
-    res.status(404).json({
-      status: "failed",
-      message: "Inavlid ID",
-    });
-    return;
-  }
   const tour = tours.find((tour) => tour.id === id);
   res.status(200).json({
     status: "success",
@@ -51,14 +64,6 @@ exports.createTour = (req, res) => {
   });
 };
 exports.updateTour = (req, res) => {
-  const id = req.params.id * 1;
-  if (id > tours.length) {
-    res.status(404).json({
-      status: "failed",
-      message: "Inavlid ID",
-    });
-    return;
-  }
   res.json({
     status: "success",
 
@@ -66,13 +71,5 @@ exports.updateTour = (req, res) => {
   });
 };
 exports.deleteTour = (req, res) => {
-  const id = req.params.id * 1;
-  if (id > tours.length) {
-    res.status(404).json({
-      status: "failed",
-      message: "Inavlid ID",
-    });
-    return;
-  }
   res.json({ status: "success" });
 };
