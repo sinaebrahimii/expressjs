@@ -10,6 +10,7 @@ const {
   checkBody,
 } = tourController;
 const router = express.Router();
+//This middlewear checks every request with id params for this route
 router.param("id", checkID);
 
 router.route("/").get(getAllTours).post(checkBody, createTour);
