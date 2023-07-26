@@ -1,20 +1,19 @@
-const fs = require("fs");
-const path = require("path");
-const filePath = path.join(__dirname, "/../dev-data/data/tours_simple.json");
-const tours = JSON.parse(fs.readFileSync(filePath));
-`${__dirname}/dev-data/data/tours_simple.json`;
-exports.checkID = (req, res, next, value) => {
-  console.log(`ID:${value}`);
-  const id = req.params.id * 1;
-  if (id > tours.length) {
-    res.status(404).json({
-      status: "failed",
-      message: "Inavlid ID -_-",
-    });
-    return;
-  }
-  next();
-};
+const Tour = require("../models/tourModel");
+
+// dosen't need it anymore mongo db will check for ID validation
+// a middle wear to check ID validation
+// exports.checkID = (req, res, next, value) => {
+//   console.log(`ID:${value}`);
+//   const id = req.params.id * 1;
+//   if (id > tours.length) {
+//     res.status(404).json({
+//       status: "failed",
+//       message: "Inavlid ID -_-",
+//     });
+//     return;
+//   }
+//   next();
+// };
 exports.checkBody = (req, res, next) => {
   if (!req.body.name || !req.body.price || req.body.name.trim().length === 0) {
     return res
@@ -42,26 +41,23 @@ exports.getTour = (req, res) => {
     },
   });
 };
-exports.createTour = (req, res) => {
-  const newId = tours[tours.length - 1].id + 1;
-  const newTour = {
-    ...req.body,
-    id: newId,
-  };
-  tours.push(newTour);
-  fs.writeFile(
-    `${__dirname}/dev-data/data/tours_simple.json`,
-    JSON.stringify(tours),
-    (err) => {
-      console.log(err);
-    }
-  );
-  res.status(201).json({
-    status: "success",
-    data: {
-      newTour,
-    },
-  });
+exports.createTour = async (req, res) => {
+  const { name, rating, price } = req.body;
+  try {
+    const newTour = await Tour.create({
+      name,
+      rating,
+      price,
+    });
+    res.status(201).json({
+      status: "success",
+      data: {
+        newTour,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({ status: "failed", message: err });
+  }
 };
 exports.updateTour = (req, res) => {
   res.json({
