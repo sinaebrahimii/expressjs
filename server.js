@@ -6,6 +6,7 @@ const app = require("./app");
 // create a DATABASE connection string to connect to mongodb
 const DB = process.env.DATABASE;
 //connect to DATABASE .sercond arcument is just config
+//db is hosted at liara
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
