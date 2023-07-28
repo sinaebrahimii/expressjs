@@ -55,11 +55,7 @@ exports.createTour = async (req, res) => {
   const { name, rating, price } = req.body;
   // creates new tour with mongoose model
   try {
-    const newTour = await Tour.create({
-      name,
-      rating,
-      price,
-    });
+    const newTour = await Tour.create(req.body);
     res.status(201).json({
       status: "success",
       data: {
