@@ -22,27 +22,38 @@ exports.checkBody = (req, res, next) => {
   }
   next();
 };
-exports.getAllTours = (req, res) => {
-  res.status(200).json({
-    status: "success",
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
+exports.getAllTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+    res.status(200).json({
+      status: "success",
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({ status: "falied", message: err });
+  }
 };
-exports.getTour = (req, res) => {
-  const id = req.params.id * 1;
-  const tour = tours.find((tour) => tour.id === id);
-  res.status(200).json({
-    status: "success",
-    data: {
-      tour,
-    },
-  });
+exports.getTour = async (req, res) => {
+  // finding a single tour using mongoose
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // Tours.findOne({id:req.params.id})
+    res.status(200).json({
+      status: "success",
+      data: {
+        tour,
+      },
+    });
+  } catch (err) {
+    res.status(404).json({ status: "failed", message: err });
+  }
 };
 exports.createTour = async (req, res) => {
   const { name, rating, price } = req.body;
+  // creates new tour with mongoose model
   try {
     const newTour = await Tour.create({
       name,
