@@ -25,8 +25,8 @@ exports.checkBody = (req, res, next) => {
 exports.getAllTours = async (req, res) => {
   try {
     const queryObj = { ...req.query };
-    const excludedFileds = ["page", "sort", "limit", "fields"];
-    excludedFileds.forEach((el) => delete queryObj[el]);
+    const excludedFields = ["page", "sort", "limit", "fields"];
+    excludedFields.forEach((el) => delete queryObj[el]);
     //this method returns a query object and we can chain method on it for more queries
     const query = Tour.find(queryObj);
     //sorting feature
@@ -42,6 +42,17 @@ exports.getAllTours = async (req, res) => {
       query.select(fields);
     } else {
       query.select("-_-v");
+    }
+    // pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit;
+    query.skip(skip).limit(limit);
+    if (req.query.page) {
+      const numberOfItems = await Tour.countDocuments();
+      if (skip >= numberOfItems) {
+        throw new Error("This page does not exist!");
+      }
     }
     const tours = await query;
 
