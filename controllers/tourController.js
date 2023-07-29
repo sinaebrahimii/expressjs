@@ -24,7 +24,19 @@ exports.checkBody = (req, res, next) => {
 };
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    const queryObj = { ...req.query };
+    const excludedFileds = ["page", "sort", "limit", "fields"];
+    excludedFileds.forEach((el) => delete queryObj[el]);
+    //this method returns a query object and we can chain method on it for more queries
+    const query = Tour.find(queryObj);
+    if (req.query.sort) {
+      //splitting queries and joining them by ' '
+      //sort method needs to accepet {duration ratingsAverage}
+      const sortBy = req.query.sort.split(",").join(" ");
+      query.sort(sortBy);
+    }
+    const tours = await query;
+
     res.status(200).json({
       status: "success",
       results: tours.length,
