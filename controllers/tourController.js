@@ -29,11 +29,19 @@ exports.getAllTours = async (req, res) => {
     excludedFileds.forEach((el) => delete queryObj[el]);
     //this method returns a query object and we can chain method on it for more queries
     const query = Tour.find(queryObj);
+    //sorting feature
     if (req.query.sort) {
       //splitting queries and joining them by ' '
       //sort method needs to accepet {duration ratingsAverage}
       const sortBy = req.query.sort.split(",").join(" ");
       query.sort(sortBy);
+    }
+    // fileds limitting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(",").join(" ");
+      query.select(fields);
+    } else {
+      query.select("-_-v");
     }
     const tours = await query;
 
