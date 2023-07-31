@@ -22,39 +22,76 @@ exports.checkBody = (req, res, next) => {
   }
   next();
 };
-exports.getAllTours = async (req, res) => {
-  try {
-    const queryObj = { ...req.query };
+class APIFeatures {
+  constructor(query, queryString) {
+    (this.query = query), (this.queryString = queryString);
+  }
+  filter() {
+    const queryObj = { ...this.queryString };
     const excludedFields = ["page", "sort", "limit", "fields"];
     excludedFields.forEach((el) => delete queryObj[el]);
-    //this method returns a query object and we can chain method on it for more queries
-    const query = Tour.find(queryObj);
-    //sorting feature
-    if (req.query.sort) {
+    this.query = this.query.find(queryObj);
+    return this;
+  }
+  sort() {
+    if (this.queryString.sort) {
       //splitting queries and joining them by ' '
       //sort method needs to accepet {duration ratingsAverage}
-      const sortBy = req.query.sort.split(",").join(" ");
-      query.sort(sortBy);
+      const sortBy = this.queryString.sort.split(",").join(" ");
+      this.query = this.query.sort(sortBy);
     }
-    // fileds limitting
-    if (req.query.fields) {
-      const fields = req.query.fields.split(",").join(" ");
-      query.select(fields);
+    return this;
+  }
+  limit() {
+    if (this.queryString.fields) {
+      const fields = this.queryString.fields.split(",").join(" ");
+      this.query = this.query.select(fields);
     } else {
-      query.select("-_-v");
+      this.query = this.query.select("-_-v");
     }
+    return this;
+  }
+  paginate() {
     // pagination
-    const page = req.query.page * 1 || 1;
-    const limit = req.query.limit * 1 || 100;
+    const page = this.queryString.page * 1 || 1;
+    const limit = this.queryString.limit * 1 || 100;
     const skip = (page - 1) * limit;
-    query.skip(skip).limit(limit);
-    if (req.query.page) {
-      const numberOfItems = await Tour.countDocuments();
-      if (skip >= numberOfItems) {
-        throw new Error("This page does not exist!");
-      }
-    }
-    const tours = await query;
+    this.query = this.query.skip(skip).limit(limit);
+    return this;
+  }
+}
+exports.getAllTours = async (req, res) => {
+  try {
+    // const queryObj = { ...req.query };
+    // const excludedFields = ["page", "sort", "limit", "fields"];
+    // excludedFields.forEach((el) => delete queryObj[el]);
+    //this method returns a query object and we can chain method on it for more queries
+    // const query = Tour.find(queryObj);
+    //sorting feature
+    // if (req.query.sort) {
+    //   //splitting queries and joining them by ' '
+    //   //sort method needs to accepet {duration ratingsAverage}
+    //   const sortBy = req.query.sort.split(",").join(" ");
+    //   query.sort(sortBy);
+    // }
+    // fileds limitting
+    // if (req.query.fields) {
+    //   const fields = req.query.fields.split(",").join(" ");
+    //   query.select(fields);
+    // } else {
+    //   query.select("-_-v");
+    // }
+    // pagination
+    // const page = req.query.page * 1 || 1;
+    // const limit = req.query.limit * 1 || 100;
+    // const skip = (page - 1) * limit;
+    // query.skip(skip).limit(limit);
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .limit()
+      .sort()
+      .paginate();
+    const tours = await features.query;
 
     res.status(200).json({
       status: "success",
