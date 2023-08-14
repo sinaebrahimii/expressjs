@@ -17,17 +17,7 @@ const userScehma = mongoose.Schema({
     type: String,
     required: [true, "Please Provide a password"],
     minlength: 8,
-  },
-  confirmPassword: {
-    type: String,
-    required: [true, "Please Confirm Your Password"],
-    // this on;y works on save and create
-    validate: {
-      validator: function (el) {
-        return this.password === el;
-      },
-      message: "Passwords are not the same!",
-    },
+    select: false,
   },
   photo: {
     type: String,
@@ -35,12 +25,18 @@ const userScehma = mongoose.Schema({
 });
 userScehma.pre("save", async function (next) {
   //only runs if password is modified
-  if (!this.isModified) return next();
+  if (!this.isModified()) return next();
   //hashes the password
-  this.password = await bcrypt.hash(this.password, 8);
+  this.password = await bcrypt.hash(this.password, 10);
   // deletes the confirmed password
-  this.confirmPassword = undefined;
+  // this.confirmPassword = undefined;
   next();
 });
+// userScehma.methods.comaprePassword = function (
+//   candidatePassword,
+//   userPassword
+// ) {
+//   return candidatePassword === userPassword;
+// };
 const User = mongoose.model("User", userScehma);
 module.exports = User;
