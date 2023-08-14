@@ -1,6 +1,12 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+//this function creates token
+const signToken = (userID) => {
+  return jwt.sign({ id: userID }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_AT,
+  });
+};
 exports.signUp = async (req, res, next) => {
   try {
     const { name, email, password, confirmPassowrd } = req.body;
@@ -10,9 +16,7 @@ exports.signUp = async (req, res, next) => {
       password,
       confirmPassowrd,
     });
-    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_AT,
-    });
+    const token = signToken(newUser._id);
     res.status(201).json({
       status: "success",
       token,
@@ -44,8 +48,7 @@ exports.logIn = async (req, res, next) => {
         message: "Incorrect username or password",
       });
     }
-    console.log(user);
-    const token = "";
+    const token = signToken(user._id);
     res.status(200).json({
       status: "success",
       data: {
