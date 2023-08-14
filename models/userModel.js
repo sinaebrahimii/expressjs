@@ -32,11 +32,13 @@ userScehma.pre("save", async function (next) {
   // this.confirmPassword = undefined;
   next();
 });
-// userScehma.methods.comaprePassword = function (
+// userScehma.methods.comaprePassword = async function (
 //   candidatePassword,
-//   userPassword
+//   userPassword,
+//   next
 // ) {
-//   return candidatePassword === userPassword;
+//   next();
+//   return await bcrypt.compare(candidatePassword, userPassword);
 // };
 const User = mongoose.model("User", userScehma);
 module.exports = User;

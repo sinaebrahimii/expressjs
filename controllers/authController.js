@@ -53,5 +53,7 @@ exports.logIn = async (req, res, next) => {
         token,
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    res.status(404).json({ status: "failed", message: error });
+  }
 };
