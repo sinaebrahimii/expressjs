@@ -60,3 +60,13 @@ exports.logIn = async (req, res, next) => {
     res.status(404).json({ status: "failed", message: error });
   }
 };
+exports.protect = async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ");
+  }
+  console.log(token);
+};
