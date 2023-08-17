@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { promisify } = require("util");
 //this function creates token
 const signToken = (userID) => {
   return jwt.sign({ id: userID }, process.env.JWT_SECRET, {
@@ -61,12 +62,34 @@ exports.logIn = async (req, res, next) => {
   }
 };
 exports.protect = async (req, res, next) => {
+  //1-Check for the token
+  //if there is valid token ,get the token.
   let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
-    token = req.headers.authorization.split(" ");
+    token = req.headers.authorization.split(" ")[1];
   }
   console.log(token);
+  //if there is not a token send error
+  if (!token) {
+    return next(
+      res.status(401).json({
+        status: "failed",
+        message: "You are not logged in please log in",
+      })
+    );
+  }
+  //2-verify the tken
+  try {
+    const decoded = promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    console.log(decoded);
+  } catch (error) {
+    return res.status(401).json({
+      status: "failed",
+      message: error,
+    });
+  }
+  next();
 };
