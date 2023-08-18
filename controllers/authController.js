@@ -81,15 +81,25 @@ exports.protect = async (req, res, next) => {
       })
     );
   }
-  //2-verify the tken
+  //2-verify the token
   try {
-    const decoded = promisify(jwt.verify)(token, process.env.JWT_SECRET);
-    console.log(decoded);
+    const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+    //3-Check if the user still exists
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+      res
+        .status(401)
+        .json({ status: "failed", message: "There is not a  user" });
+      return next();
+    }
   } catch (error) {
-    return res.status(401).json({
-      status: "failed",
-      message: error,
-    });
+    return next(
+      res.status(401).json({
+        status: "failed",
+        message: error,
+      })
+    );
   }
+
   next();
 };
