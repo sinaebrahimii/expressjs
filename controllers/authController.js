@@ -86,6 +86,7 @@ exports.protect = async (req, res, next) => {
     const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
     //3-Check if the user still exists
     const freshUser = await User.findById(decoded.id);
+    req.user = freshUser;
     if (!freshUser) {
       res
         .status(401)
@@ -100,6 +101,18 @@ exports.protect = async (req, res, next) => {
       })
     );
   }
-
   next();
+};
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      next(
+        res.status(403).json({
+          status: "failed",
+          message: `You don't have premission to perform this action`,
+        })
+      );
+    }
+    next();
+  };
 };
