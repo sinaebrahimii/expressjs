@@ -10,12 +10,12 @@ const signToken = (userID) => {
 };
 exports.signUp = async (req, res, next) => {
   try {
-    const { name, email, password, confirmPassowrd } = req.body;
+    const { name, email, password, role } = req.body;
     const newUser = await User.create({
       name,
       email,
       password,
-      confirmPassowrd,
+      role,
     });
     const token = signToken(newUser._id);
     res.status(201).json({
