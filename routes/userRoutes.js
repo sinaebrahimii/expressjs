@@ -14,8 +14,10 @@ const {
   logIn,
   signUp,
 } = require("../controllers/authController");
+
 const router = express.Router();
 router.route("/signup").post(signUp);
+router.route("/forgotpassword").post(forgotPassword);
 router.route("/login").post(logIn);
 router.route("/").get(getAllUsers).post(createUser);
 router

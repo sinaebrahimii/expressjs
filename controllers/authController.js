@@ -2,7 +2,6 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { promisify } = require("util");
-const { use } = require("../routes/userRoutes");
 //this function creates token
 const signToken = (userID) => {
   return jwt.sign({ id: userID }, process.env.JWT_SECRET, {
@@ -118,18 +117,25 @@ exports.restrictTo = (...roles) => {
   };
 };
 exports.forgotPassword = async (req, res, next) => {
+  const { email } = req.body;
+  let user;
   try {
     //check for the user email existance
-    const user = await User.findOne({ email: req.body.email });
+    user = await User.findOne({ email });
     //get the password reset token with model method
-    resetToken = use.createPasswordResetToken();
-  } catch (error) {}
-  return next(
-    res.status(404).json({
-      status: failed,
-      message: "There is no User with this email",
-      error,
-    })
-  );
+    resetToken = user.createPasswordResetToken();
+    // user = await user.save();
+    // return next(res.status(200).json({ user }));
+    await user.save({ validateBeforeSave: false });
+  } catch (error) {
+    return next(
+      res.status(404).json({
+        status: "failed",
+        message: "There is no User with this email",
+        error,
+      })
+    );
+  }
+  return res.status(200).json({ user });
 };
 exports.resetPassword = (req, res, next) => {};

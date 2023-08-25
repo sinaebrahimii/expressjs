@@ -36,10 +36,16 @@ const userScehma = mongoose.Schema({
 userScehma.pre("save", async function (next) {
   //only runs if password is modified
   if (!this.isModified()) return next();
-  //hashes the password
-  this.password = await bcrypt.hash(this.password, 10);
-  // deletes the confirmed password
-  // this.confirmPassword = undefined;
+  console.log("mame");
+
+  try {
+    //hashes the password
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  } catch (error) {
+    next();
+  }
+
   next();
 });
 userScehma.methods.createPasswordResetToken = function () {
@@ -50,16 +56,8 @@ userScehma.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest("hex");
   //ads 10 minutes to expire date
-  this.passwordResetExpires = Date.now() * 1000 * 60 * 10;
+  this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
   return resetToken;
 };
-// userScehma.methods.comaprePassword = async function (
-//   candidatePassword,
-//   userPassword,
-//   next
-// ) {
-//   next();
-//   return await bcrypt.compare(candidatePassword, userPassword);
-// };
 const User = mongoose.model("User", userScehma);
 module.exports = User;

@@ -1,14 +1,7 @@
 const express = require("express");
 const tourController = require("../controllers/tourController");
-const {
-  getAllTours,
-  createTour,
-  getTour,
-  updateTour,
-  deleteTour,
-  checkID,
-  checkBody,
-} = tourController;
+const { getAllTours, createTour, getTour, updateTour, deleteTour } =
+  tourController;
 const { protect } = require("../controllers/authController");
 const router = express.Router();
 //This middlewear checks every request with id params for this route
