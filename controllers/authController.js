@@ -2,6 +2,7 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const { promisify } = require("util");
+const { use } = require("../routes/userRoutes");
 //this function creates token
 const signToken = (userID) => {
   return jwt.sign({ id: userID }, process.env.JWT_SECRET, {
@@ -118,16 +119,17 @@ exports.restrictTo = (...roles) => {
 };
 exports.forgotPassword = async (req, res, next) => {
   try {
+    //check for the user email existance
     const user = await User.findOne({ email: req.body.email });
+    //get the password reset token with model method
+    resetToken = use.createPasswordResetToken();
   } catch (error) {}
   return next(
-    res
-      .status(404)
-      .json({
-        status: failed,
-        message: "There is no User with this email",
-        error,
-      })
+    res.status(404).json({
+      status: failed,
+      message: "There is no User with this email",
+      error,
+    })
   );
 };
 exports.resetPassword = (req, res, next) => {};
