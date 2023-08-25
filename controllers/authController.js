@@ -116,3 +116,18 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+exports.forgotPassword = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ email: req.body.email });
+  } catch (error) {}
+  return next(
+    res
+      .status(404)
+      .json({
+        status: failed,
+        message: "There is no User with this email",
+        error,
+      })
+  );
+};
+exports.resetPassword = (req, res, next) => {};
